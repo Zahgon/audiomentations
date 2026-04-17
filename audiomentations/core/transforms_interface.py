@@ -50,47 +50,36 @@ class BaseTransform(Serializable, metaclass=CombinedMeta):
 
     def serialize_parameters(self):
         """Return the parameters as a JSON-serializable dict."""
-        return self.parameters
+        pass
 
     def freeze_parameters(self):
         """
         Mark all parameters as frozen, i.e. do not randomize them for each call. This can be
         useful if you want to apply an effect with the exact same parameters to multiple sounds.
         """
-        self.are_parameters_frozen = True
+        pass
 
     def unfreeze_parameters(self):
         """
         Unmark all parameters as frozen, i.e. let them be randomized for each call.
         """
-        self.are_parameters_frozen = False
+        pass
 
     @classmethod
     def get_class_fullname(cls) -> str:
-        return get_shortest_class_fullname(cls)
+        pass
 
     @classmethod
     def is_serializable(cls) -> bool:
-        return True
+        pass
 
     def get_base_init_args(self) -> dict[str, Any]:
         """Returns base init args - p"""
-        return {"p": self.p}
+        pass
 
     def get_transform_init_args(self) -> dict[str, Any]:
         """Exclude seed from init args during serialization"""
-        init_signature = inspect.signature(self.__init__)
-        args = {}
-        for k, _ in init_signature.parameters.items():
-            attr = getattr(self, k, None)
-            if attr is not None:
-                args[k] = attr
-            else:
-                warnings.warn(
-                    f"Warning: attribute {k} is not found in the transform definition and it won't be printed."
-                )
-        args.pop("seed", None)  # Remove seed from args
-        return args
+        pass
 
 
 class BaseWaveformTransform(BaseTransform):
@@ -98,7 +87,7 @@ class BaseWaveformTransform(BaseTransform):
         raise NotImplementedError
 
     def is_multichannel(self, samples):
-        return is_waveform_multichannel(samples)
+        pass
 
     def __call__(
         self, samples: NDArray[np.float32], sample_rate: int
@@ -139,14 +128,11 @@ class BaseWaveformTransform(BaseTransform):
         return samples
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        self.parameters["should_apply"] = random.random() < self.p
+        pass
 
     @classmethod
     def get_class_fullname(cls) -> str:
-        return get_shortest_class_fullname(cls)
+        pass
 
     def to_dict_private(self) -> dict[str, Any]:
-        state = {"__class_fullname__": self.get_class_fullname()}
-        state.update(self.get_base_init_args())
-        state.update(self.get_transform_init_args())
-        return state
+        pass

@@ -26,13 +26,7 @@ class AddGaussianNoise(BaseWaveformTransform):
         self.max_amplitude = max_amplitude
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        if self.parameters["should_apply"]:
-            self.parameters["amplitude"] = random.uniform(
-                self.min_amplitude, self.max_amplitude
-            )
+        pass
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        noise = np.random.randn(*samples.shape).astype(np.float32)
-        samples = samples + self.parameters["amplitude"] * noise
-        return samples
+        pass

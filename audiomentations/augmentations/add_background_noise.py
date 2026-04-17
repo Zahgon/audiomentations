@@ -103,76 +103,7 @@ class AddBackgroundNoise(BaseWaveformTransform):
         self.time_info_arr.fill(-1.0)
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-
-        if self.parameters["should_apply"]:
-            self.parameters["snr_db"] = random.uniform(self.min_snr_db, self.max_snr_db)
-            self.parameters["rms_db"] = random.uniform(
-                self.min_absolute_rms_db, self.max_absolute_rms_db
-            )
-            file_idx = random.randint(0, len(self.sound_file_paths) - 1)
-            self.parameters["noise_file_path"] = self.sound_file_paths[file_idx]
-
-            if self.time_info_arr[file_idx] == -1.0:
-                self.time_info_arr[file_idx] = librosa.get_duration(
-                    path=self.parameters["noise_file_path"]
-                )
-
-            noise_duration = float(self.time_info_arr[file_idx])
-            signal_duration = len(samples) / sample_rate
-
-            min_noise_offset = 0.0
-            max_noise_offset = max(0.0, noise_duration - signal_duration)
-
-            self.parameters["offset"] = random.uniform(
-                min_noise_offset, max_noise_offset
-            )
-            self.parameters["duration"] = signal_duration
+        pass
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int):
-        noise_sound, _ = load_sound_file(
-            self.parameters["noise_file_path"],
-            sample_rate,
-            offset=self.parameters["offset"],
-            duration=self.parameters["duration"],
-        )
-
-        if self.noise_transform:
-            noise_sound = self.noise_transform(noise_sound, sample_rate)
-
-        noise_rms = calculate_rms(noise_sound)
-        if noise_rms < 1e-9:
-            warnings.warn(
-                "The file {} is too silent to be added as noise. Returning the input"
-                " unchanged.".format(self.parameters["noise_file_path"])
-            )
-            return samples
-
-        clean_rms = calculate_rms(samples)
-
-        if self.noise_rms == "relative":
-            desired_noise_rms = calculate_desired_noise_rms(
-                clean_rms, self.parameters["snr_db"]
-            )
-
-            # Adjust the noise to match the desired noise RMS
-            noise_sound = noise_sound * (desired_noise_rms / noise_rms)
-
-        if self.noise_rms == "absolute":
-            desired_noise_rms_db = self.parameters["rms_db"]
-            desired_noise_rms_amp = convert_decibels_to_amplitude_ratio(
-                desired_noise_rms_db
-            )
-            gain = desired_noise_rms_amp / noise_rms
-            noise_sound = noise_sound * gain
-
-        # Repeat the sound if it shorter than the input sound
-        num_samples = len(samples)
-        while len(noise_sound) < num_samples:
-            noise_sound = np.concatenate((noise_sound, noise_sound))
-
-        if len(noise_sound) > num_samples:
-            noise_sound = noise_sound[0:num_samples]
-
-        # Return a mix of the input sound and the background noise sound
-        return samples + noise_sound
+        pass

@@ -22,7 +22,4 @@ class Reverse(BaseWaveformTransform):
         super().__init__(p)
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        if len(samples.shape) > 1:
-            return np.fliplr(samples)
-        else:
-            return np.flipud(samples)
+        pass

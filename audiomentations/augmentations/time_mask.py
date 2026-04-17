@@ -81,53 +81,9 @@ class TimeMask(BaseWaveformTransform):
         self.mask_location = mask_location
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        if not self.parameters["should_apply"]:
-            return
-
-        num_samples = samples.shape[-1]
-
-        # Mask length
-        t = random.randint(
-            int(num_samples * self.min_band_part),
-            int(num_samples * self.max_band_part),
-        )
-
-        # Start index based on mask_location
-        loc = self.mask_location
-        if loc == "start":
-            t0 = 0
-        elif loc == "end":
-            t0 = num_samples - t
-        else:  # "random"
-            t0 = random.randint(0, num_samples - t)
-
-        self.parameters.update({"t": t, "t0": t0})
+        pass
 
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        new_samples = samples.copy()
-        t: int = self.parameters["t"]
-        t0: int = self.parameters["t0"]
-
-        fade_len = 0
-        if self.fade_duration > 0.0:
-            fade_len = int(round(sample_rate * self.fade_duration))
-            fade_len = min(fade_len, t // 2)
-
-        if fade_len >= 2:
-            fade_in, fade_out = get_crossfade_mask_pair(fade_len, equal_energy=False)
-
-            left = slice(t0, t0 + fade_len)
-            mid = slice(t0 + fade_len, t0 + t - fade_len)
-            right = slice(t0 + t - fade_len, t0 + t)
-
-            new_samples[..., left] *= fade_out
-            if mid.start < mid.stop:
-                new_samples[..., mid] = 0.0
-            new_samples[..., right] *= fade_in
-        else:
-            new_samples[..., t0 : t0 + t] = 0.0
-
-        return new_samples
+        pass

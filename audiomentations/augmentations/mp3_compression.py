@@ -152,181 +152,35 @@ class Mp3Compression(BaseWaveformTransform):
         self.post_gain_factor = None
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        if self.parameters["should_apply"]:
-            bitrate_choices = [
-                bitrate
-                for bitrate in self.SUPPORTED_BITRATES
-                if self.min_bitrate <= bitrate <= self.max_bitrate
-            ]
-            self.parameters["bitrate"] = random.choice(bitrate_choices)
+        pass
 
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        if self.backend == "fast-mp3-augment":
-            return self.apply_fast_mp3_augment(samples, sample_rate)
-        if self.backend == "lameenc":
-            return self.apply_lameenc(samples, sample_rate)
-        elif self.backend == "pydub":
-            return self.apply_pydub(samples, sample_rate)
-        else:
-            raise Exception("Backend {} not recognized".format(self.backend))
+        pass
 
     def maybe_pre_gain(self, samples):
         """
         If the audio is too loud, gain it down to avoid distortion in the audio file to
         be encoded.
         """
-        greatest_abs_sample = get_max_abs_amplitude(samples)
-        if greatest_abs_sample > 1.0:
-            self.post_gain_factor = greatest_abs_sample
-            samples = samples * (1.0 / greatest_abs_sample)
-        else:
-            self.post_gain_factor = None
-        return samples
+        pass
 
     def maybe_post_gain(self, samples):
         """If the audio was pre-gained down earlier, post-gain it up to compensate here."""
-        if self.post_gain_factor is not None:
-            samples = samples * self.post_gain_factor
-        return samples
+        pass
 
     def apply_lameenc(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        try:
-            import lameenc
-        except ImportError:
-            print(
-                (
-                    "Failed to import the lame encoder. Maybe it is not installed? "
-                    "To install the optional lameenc dependency of audiomentations,"
-                    " run `pip install lameenc`"
-                ),
-                file=sys.stderr,
-            )
-            raise
-
-        assert samples.dtype == np.float32
-
-        samples = self.maybe_pre_gain(samples)
-
-        int_samples = convert_float_samples_to_int16(samples).T
-
-        num_channels = 1 if samples.ndim == 1 else samples.shape[0]
-
-        encoder = lameenc.Encoder()
-        encoder.set_bit_rate(self.parameters["bitrate"])
-        encoder.set_in_sample_rate(sample_rate)
-        encoder.set_channels(num_channels)
-        encoder.set_quality(self.quality)
-        encoder.silence()
-
-        mp3_data = encoder.encode(int_samples.tobytes())
-        mp3_data += encoder.flush()
-
-        # Write a temporary MP3 file that will then be decoded
-        tmp_dir = tempfile.gettempdir()
-        tmp_file_path = os.path.join(
-            tmp_dir, "tmp_compressed_{}.mp3".format(str(uuid.uuid4())[0:12])
-        )
-        with open(tmp_file_path, "wb") as f:
-            f.write(mp3_data)
-
-        degraded_samples, _ = librosa.load(tmp_file_path, sr=sample_rate, mono=False)
-
-        os.unlink(tmp_file_path)
-
-        degraded_samples = self.maybe_post_gain(degraded_samples)
-
-        if num_channels == 1:
-            if int_samples.ndim == 1 and degraded_samples.ndim == 2:
-                degraded_samples = np.ravel(degraded_samples)
-            elif int_samples.ndim == 2 and degraded_samples.ndim == 1:
-                degraded_samples = degraded_samples.reshape((1, -1))
-
-        return degraded_samples
+        pass
 
     def apply_fast_mp3_augment(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        try:
-            import fast_mp3_augment
-        except ImportError:
-            print(
-                (
-                    "Failed to import fast_mp3_augment. Maybe it is not installed? "
-                    "To install the optional fast_mp3_augment dependency of audiomentations,"
-                    " run `pip install audiomentations[extras]` or simply"
-                    " `pip install fast_mp3_augment`"
-                ),
-                file=sys.stderr,
-            )
-            raise
-
-        assert samples.dtype == np.float32
-
-        if samples.ndim == 2 and not samples.flags.c_contiguous:
-            samples = np.ascontiguousarray(samples)
-
-        degraded_samples = fast_mp3_augment.compress_roundtrip(
-            samples,
-            sample_rate=sample_rate,
-            bitrate_kbps=self.parameters["bitrate"],
-            preserve_delay=self.preserve_delay,
-            quality=self.quality,
-        )
-        return degraded_samples
+        pass
 
     def apply_pydub(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        try:
-            import pydub
-        except ImportError:
-            print(
-                (
-                    "Failed to import pydub. Maybe it is not installed? "
-                    "To install the optional pydub dependency of audiomentations,"
-                    " run `pip install pydub`"
-                ),
-                file=sys.stderr,
-            )
-            raise
-
-        assert samples.dtype == np.float32
-
-        samples = self.maybe_pre_gain(samples)
-
-        int_samples = convert_float_samples_to_int16(samples).T
-        num_channels = 1 if samples.ndim == 1 else samples.shape[0]
-        audio_segment = pydub.AudioSegment(
-            int_samples.tobytes(),
-            frame_rate=sample_rate,
-            sample_width=int_samples.dtype.itemsize,
-            channels=num_channels,
-        )
-
-        tmp_dir = tempfile.gettempdir()
-        tmp_file_path = os.path.join(
-            tmp_dir, "tmp_compressed_{}.mp3".format(str(uuid.uuid4())[0:12])
-        )
-
-        bitrate_string = "{}k".format(self.parameters["bitrate"])
-        file_handle = audio_segment.export(tmp_file_path, bitrate=bitrate_string)
-        file_handle.close()
-
-        degraded_samples, _ = librosa.load(tmp_file_path, sr=sample_rate, mono=False)
-
-        os.unlink(tmp_file_path)
-
-        degraded_samples = self.maybe_post_gain(degraded_samples)
-
-        if num_channels == 1:
-            if int_samples.ndim == 1 and degraded_samples.ndim == 2:
-                degraded_samples = np.ravel(degraded_samples)
-            elif int_samples.ndim == 2 and degraded_samples.ndim == 1:
-                degraded_samples = degraded_samples.reshape((1, -1))
-
-        return degraded_samples
+        pass

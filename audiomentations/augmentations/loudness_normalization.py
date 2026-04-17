@@ -39,37 +39,10 @@ class LoudnessNormalization(BaseWaveformTransform):
         self.max_lufs = max_lufs
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        try:
-            import loudness
-        except ImportError:
-            print(
-                (
-                    "Failed to import loudness. Maybe it is not installed? "
-                    "To install the optional loudness dependency of audiomentations,"
-                    " do `pip install audiomentations[extras]` or simply "
-                    " `pip install loudness`"
-                ),
-                file=sys.stderr,
-            )
-            raise
-
-        super().randomize_parameters(samples, sample_rate)
-        if self.parameters["should_apply"]:
-            self.parameters["loudness"] = loudness.integrated_loudness(
-                samples.transpose(), sample_rate
-            )
-            self.parameters["lufs"] = float(
-                random.uniform(self.min_lufs, self.max_lufs)
-            )
+        pass
 
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
         # Guard against digital silence
-        if self.parameters["loudness"] > float("-inf"):
-            # Normalize loudness
-            delta_loudness = self.parameters["lufs"] - self.parameters["loudness"]
-            gain = np.power(10.0, delta_loudness / 20.0, dtype=np.float32)
-            return gain * samples
-
-        return samples
+        pass

@@ -170,47 +170,9 @@ class AddColorNoise(BaseWaveformTransform):
         self.n_fft = n_fft
 
     def randomize_parameters(self, samples: np.ndarray, sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        if self.parameters["should_apply"]:
-            # Pick SNR in Decibel scale
-            snr = random.uniform(self.min_snr_db, self.max_snr_db)
-
-            # Pick f_decay
-            f_decay = random.uniform(self.min_f_decay, self.max_f_decay)
-
-            # Pick whether to apply A-weighting
-            apply_a_weighting = random.random() < self.p_apply_a_weighting
-
-            # Calculate desired noise rms
-            clean_rms = calculate_rms(samples)
-            desired_noise_rms = calculate_desired_noise_rms(
-                clean_rms=clean_rms, snr=snr
-            )
-
-            # Set the parameters
-            self.parameters["desired_noise_rms"] = float(desired_noise_rms)
-            self.parameters["f_decay"] = f_decay
-            self.parameters["apply_a_weighting"] = apply_a_weighting
+        pass
 
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        desired_noise_rms = self.parameters["desired_noise_rms"]
-
-        if samples.ndim == 1:
-            n_channels = 1
-        else:
-            n_channels = samples.shape[0]
-
-        noise_with_unit_rms = generate_decaying_white_noise(
-            size=samples.shape,
-            beta=self.parameters["f_decay"],
-            sample_rate=sample_rate,
-            apply_a_weighting=self.parameters["apply_a_weighting"],
-            n_fft=self.n_fft,
-        )
-
-        if n_channels > 1:
-            return samples + noise_with_unit_rms * desired_noise_rms
-        else:
-            return samples + noise_with_unit_rms * desired_noise_rms
+        pass

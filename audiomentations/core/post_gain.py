@@ -52,48 +52,22 @@ class PostGain:
     def method_same_rms(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        rms_before = calculate_rms(samples)
-        samples = self.transform(samples, sample_rate)
-        rms_after = calculate_rms(samples)
-        gain_factor = rms_before / rms_after
-        samples *= gain_factor
-        return samples
+        pass
 
     def method_same_lufs(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        try:
-            import loudness
-        except ImportError:
-            print(
-                (
-                    "Failed to import loudness. Maybe it is not installed? "
-                    "To install the optional loudness dependency of audiomentations,"
-                    " do `pip install audiomentations[extras]` or simply "
-                    " `pip install loudness`"
-                ),
-                file=sys.stderr,
-            )
-            raise
-
-        lufs_before = loudness.integrated_loudness(samples.transpose(), sample_rate)
-        samples = self.transform(samples, sample_rate)
-        lufs_after = loudness.integrated_loudness(samples.transpose(), sample_rate)
-        gain_db = lufs_before - lufs_after
-        samples *= convert_decibels_to_amplitude_ratio(gain_db)
-        return samples
+        pass
 
     def method_peak_normalize_always(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        samples = self.transform(samples, sample_rate)
-        return Normalize(apply_to="all", p=1.0)(samples, sample_rate)
+        pass
 
     def method_peak_normalize_if_too_loud(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        samples = self.transform(samples, sample_rate)
-        return Normalize(apply_to="only_too_loud_sounds", p=1.0)(samples, sample_rate)
+        pass
 
     def __call__(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
         if self.method == "same_rms":

@@ -24,7 +24,7 @@ class PolarityInversion(BaseWaveformTransform):
         super().__init__(p)
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
+        pass
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        return -samples
+        pass

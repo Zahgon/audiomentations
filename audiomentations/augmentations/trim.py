@@ -21,5 +21,4 @@ class Trim(BaseWaveformTransform):
         self.top_db = top_db
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int):
-        samples, _ = librosa.effects.trim(samples, top_db=self.top_db)
-        return samples
+        pass

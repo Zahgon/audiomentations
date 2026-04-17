@@ -32,16 +32,7 @@ class Resample(BaseWaveformTransform):
         self.max_sample_rate = max_sample_rate
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        if self.parameters["should_apply"]:
-            self.parameters["target_sample_rate"] = random.randint(
-                self.min_sample_rate, self.max_sample_rate
-            )
+        pass
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        samples = librosa.core.resample(
-            samples,
-            orig_sr=sample_rate,
-            target_sr=self.parameters["target_sample_rate"],
-        )
-        return samples
+        pass

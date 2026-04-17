@@ -36,12 +36,7 @@ class BitCrush(BaseWaveformTransform):
             raise ValueError("min_bit_depth must not be larger than max_bit_depth")
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        if self.parameters["should_apply"]:
-            self.parameters["bit_depth"] = random.randint(
-                self.min_bit_depth, self.max_bit_depth
-            )
+        pass
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        q = (2 ** self.parameters["bit_depth"] / 2) + 1
-        return np.round(samples * q) / q
+        pass

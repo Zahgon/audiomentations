@@ -38,11 +38,7 @@ class Gain(BaseWaveformTransform):
         self.max_gain_db = max_gain_db
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        if self.parameters["should_apply"]:
-            self.parameters["amplitude_ratio"] = convert_decibels_to_amplitude_ratio(
-                random.uniform(self.min_gain_db, self.max_gain_db)
-            )
+        pass
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        return samples * self.parameters["amplitude_ratio"]
+        pass

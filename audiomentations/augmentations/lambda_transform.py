@@ -26,4 +26,4 @@ class Lambda(BaseWaveformTransform):
         self.kwargs = kwargs
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        return self.transform(samples, sample_rate, **self.kwargs)
+        pass

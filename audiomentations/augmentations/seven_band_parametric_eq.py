@@ -109,15 +109,7 @@ class SevenBandParametricEQ(BaseWaveformTransform):
         self.high_shelf_filter.freeze_parameters()
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        self.low_shelf_filter.randomize_parameters(samples, sample_rate)
-        for i in range(len(self.peaking_filters)):
-            self.peaking_filters[i].randomize_parameters(samples, sample_rate)
-        self.high_shelf_filter.randomize_parameters(samples, sample_rate)
+        pass
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        samples = self.low_shelf_filter(samples, sample_rate)
-        for i in range(len(self.peaking_filters)):
-            samples = self.peaking_filters[i](samples, sample_rate)
-        samples = self.high_shelf_filter(samples, sample_rate)
-        return samples
+        pass

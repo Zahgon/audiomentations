@@ -110,3 +110,6 @@ venv.bak/
 
 # Demo output
 demo/output/**/*.wav
+
+.aider*
+logs/

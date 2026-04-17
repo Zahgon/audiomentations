@@ -46,44 +46,7 @@ class Padding(BaseWaveformTransform):
         self.pad_section = pad_section
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        if self.parameters["should_apply"]:
-            input_length = samples.shape[-1]
-            self.parameters["padding_length"] = random.randint(
-                int(round(self.min_fraction * input_length)),
-                int(round(self.max_fraction * input_length)),
-            )
+        pass
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        padding_length = self.parameters["padding_length"]
-        if padding_length == 0:
-            return samples
-
-        untouched_length = samples.shape[-1] - padding_length
-
-        if self.mode == "silence":
-            samples = np.copy(samples)
-            if self.pad_section == "start":
-                samples[..., :padding_length] = 0.0
-            else:
-                samples[..., -padding_length:] = 0.0
-        else:
-            if samples.ndim == 1:
-                if self.pad_section == "start":
-                    pad_width = (padding_length, 0)
-                else:
-                    pad_width = (0, padding_length)
-            else:
-                if self.pad_section == "start":
-                    pad_width = ((0, 0), (padding_length, 0))
-                else:
-                    pad_width = ((0, 0), (0, padding_length))
-
-            if self.pad_section == "start":
-                samples = samples[..., -untouched_length:]
-            else:
-                samples = samples[..., :untouched_length]
-
-            samples = np.pad(samples, pad_width, self.mode)
-
-        return samples
+        pass

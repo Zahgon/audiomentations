@@ -80,70 +80,12 @@ class Limiter(BaseWaveformTransform):
     def convert_time_to_coefficient(
         t: float, sample_rate: int, decay_threshold: float = None
     ) -> float:
-        if decay_threshold is None:
-            # Attack time and release time in this transform are defined as how long
-            # it takes to step 1-decay_threshold of the way to a constant target gain.
-            # The default threshold used here is inspired by RT60.
-            decay_threshold = convert_decibels_to_amplitude_ratio(-60)
-        return 10 ** (math.log10(decay_threshold) / max(sample_rate * t, 1.0))
+        pass
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-
-        if self.parameters["should_apply"]:
-            attack_seconds = random.uniform(self.min_attack, self.max_attack)
-            self.parameters["attack"] = self.convert_time_to_coefficient(
-                attack_seconds, sample_rate
-            )
-            release_seconds = random.uniform(self.min_release, self.max_release)
-            self.parameters["release"] = self.convert_time_to_coefficient(
-                release_seconds, sample_rate
-            )
-            # Delay the signal by 60% of the attack time by default
-            self.parameters["delay"] = max(round(0.6 * attack_seconds * sample_rate), 1)
-
-            threshold_factor = (
-                get_max_abs_amplitude(samples)
-                if self.threshold_mode == "relative_to_signal_peak"
-                else 1.0
-            )
-            threshold_db = random.uniform(self.min_threshold_db, self.max_threshold_db)
-
-            self.parameters["threshold"] = float(
-                threshold_factor * convert_decibels_to_amplitude_ratio(threshold_db)
-            )
+        pass
 
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        if self.parameters["threshold"] == 0.0:
-            # Digital silence input can cause this to happen
-            return samples
-        try:
-            import numpy_audio_limiter
-        except ImportError:
-            print(
-                "Failed to import numpy_audio_limiter. Maybe it is not installed? "
-                "To install the optional numpy-audio-limiter dependency of audiomentations,"
-                " run `pip install numpy-audio-limiter` or `pip install audiomentations[extras]`",
-                file=sys.stderr,
-            )
-            raise
-
-        original_ndim = samples.ndim
-        if original_ndim == 1:
-            samples = samples.reshape((1, -1))
-        else:
-            if samples.shape[0] > 1 and not samples.flags.c_contiguous:
-                samples = np.ascontiguousarray(samples)
-        processed_samples = numpy_audio_limiter.limit(
-            signal=samples,
-            attack_coeff=self.parameters["attack"],
-            release_coeff=self.parameters["release"],
-            delay=self.parameters["delay"],
-            threshold=self.parameters["threshold"],
-        )
-        if original_ndim == 1:
-            processed_samples = processed_samples[0]
-
-        return processed_samples
+        pass

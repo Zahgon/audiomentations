@@ -34,12 +34,7 @@ class BaseCompose:
         """
         Randomize and define parameters of every transform in composition.
         """
-        apply_to_children = kwargs.get("apply_to_children", True)
-        if apply_to_children:
-            if "apply_to_children" in kwargs:
-                del kwargs["apply_to_children"]
-            for transform in self.transforms:
-                transform.randomize_parameters(*args, **kwargs)
+        pass
 
     def freeze_parameters(self, apply_to_children=True):
         """
@@ -47,50 +42,23 @@ class BaseCompose:
         useful if you want to apply an effect chain with the exact same parameters to multiple
         sounds.
         """
-        self.are_parameters_frozen = True
-        if apply_to_children:
-            for transform in self.transforms:
-                transform.freeze_parameters()
+        pass
 
     def unfreeze_parameters(self, apply_to_children=True):
         """
         Unmark all parameters as frozen, i.e. let them be randomized for each call.
         """
-        self.are_parameters_frozen = False
-        if apply_to_children:
-            for transform in self.transforms:
-                transform.unfreeze_parameters()
+        pass
 
     def indented_repr(self, indent: int = REPR_INDENT_STEP) -> str:
-        args = {
-            k: v
-            for k, v in self.to_dict_private().items()
-            if not (k.startswith("__") or k == "transforms")
-        }
-        repr_string = self.__class__.__name__ + "(["
-        for t in self.transforms:
-            repr_string += "\n"
-            t_repr = (
-                t.indented_repr(indent + REPR_INDENT_STEP)
-                if hasattr(t, "indented_repr")
-                else repr(t)
-            )
-            repr_string += " " * indent + t_repr + ","
-        repr_string += (
-            "\n" + " " * (indent - REPR_INDENT_STEP) + f"], {format_args(args)})"
-        )
-        return repr_string
+        pass
 
     @classmethod
     def get_class_fullname(cls) -> str:
-        return get_shortest_class_fullname(cls)
+        pass
 
     def to_dict_private(self) -> dict[str, Any]:
-        return {
-            "__class_fullname__": self.get_class_fullname(),
-            "p": self.p,
-            "transforms": [t.to_dict_private() for t in self.transforms],
-        }
+        pass
 
 
 class Compose(BaseCompose):
@@ -177,25 +145,7 @@ class SomeOf(BaseCompose):
         self.should_apply = True
 
     def randomize_parameters(self, *args, **kwargs):
-        super().randomize_parameters(*args, **kwargs)
-        self.should_apply = random.random() < self.p
-        if self.should_apply:
-            if type(self.num_transforms) == tuple:
-                if self.num_transforms[1] is None:
-                    num_transforms_to_apply = random.randint(
-                        self.num_transforms[0], len(self.transforms)
-                    )
-                else:
-                    num_transforms_to_apply = random.randint(
-                        self.num_transforms[0], self.num_transforms[1]
-                    )
-            else:
-                num_transforms_to_apply = self.num_transforms
-            all_transforms_indexes = list(range(len(self.transforms)))
-            self.transform_indexes = sorted(
-                random.sample(all_transforms_indexes, num_transforms_to_apply)
-            )
-        return self.transform_indexes
+        pass
 
     def __call__(self, *args, **kwargs):
         if not self.are_parameters_frozen:
@@ -261,10 +211,7 @@ class OneOf(BaseCompose):
             self.sampler = WeightedChoiceSampler(num_items=len(transforms))
 
     def randomize_parameters(self, *args, **kwargs):
-        super().randomize_parameters(*args, **kwargs)
-        self.should_apply = random.random() < self.p
-        if self.should_apply:
-            self.transform_index = self.sampler.sample(size=1)[0]
+        pass
 
     def __call__(self, *args, **kwargs):
         if not self.are_parameters_frozen:

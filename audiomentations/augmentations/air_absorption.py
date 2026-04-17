@@ -10,7 +10,7 @@ def next_power_of_2(x: int) -> int:
     taken jhoyla's answer here:
     https://stackoverflow.com/questions/14267555/find-the-smallest-power-of-2-greater-than-or-equal-to-n-in-python
     """
-    return 1 if x == 0 else 2 ** (x - 1).bit_length()
+    pass
 
 
 def get_temperature_humidity_key(temperature: float, humidity: float) -> str:
@@ -129,69 +129,9 @@ class AirAbsorption(BaseWaveformTransform):
         self.max_distance = max_distance
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        super().randomize_parameters(samples, sample_rate)
-        self.parameters["temperature"] = 10 * np.random.randint(
-            int(self.min_temperature) // 10, int(self.max_temperature) // 10 + 1
-        )
-        self.parameters["humidity"] = np.random.randint(
-            self.min_humidity, self.max_humidity + 1
-        )
-        self.parameters["distance"] = np.random.uniform(
-            self.min_distance, self.max_distance
-        )
+        pass
 
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        assert samples.dtype == np.float32
-
-        # Choose correct absorption coefficients
-        key = get_temperature_humidity_key(
-            self.parameters["temperature"], self.parameters["humidity"]
-        )
-
-        # Convert to attenuations
-        attenuation_values = np.exp(
-            -self.parameters["distance"] * np.array(self.air_absorption_table[key])
-        )
-
-        # Calculate n_fft so that the lowest band can be stored in a single
-        # fft bin.
-        first_band_bw = self.air_absorption_table["center_freqs"][0] / (2**0.5)
-        n_fft = next_power_of_2(int(sample_rate / 2 / first_band_bw))
-
-        # Frequencies to calculate the attenuations caused by air absorption
-        frequencies = librosa.fft_frequencies(sr=sample_rate, n_fft=n_fft)
-
-        # Interpolate to the desired frequencies (we have to do this in dB)
-        db_target_attenuations = np.interp(
-            frequencies,
-            self.air_absorption_table["center_freqs"],
-            20 * np.log10(attenuation_values),
-        )
-
-        linear_target_attenuations = 10 ** (db_target_attenuations / 20)
-
-        # Apply using STFT
-        if len(samples.shape) == 1:
-            stft = librosa.stft(samples, n_fft=n_fft)
-
-            # Compute mask
-            mask = np.tile(linear_target_attenuations, (stft.shape[1], 1)).T
-
-            # Compute target degraded audio
-            result = librosa.istft(stft * mask, length=len(samples), dtype=np.float32)
-
-        else:
-            result = np.zeros_like(samples, dtype=np.float32)
-
-            for chn_idx, channel in enumerate(samples):
-                stft = librosa.stft(channel, n_fft=n_fft)
-
-                # Compute mask
-                mask = np.tile(linear_target_attenuations, (stft.shape[1], 1)).T
-
-                # Compute target degraded audio
-                result[chn_idx, :] = librosa.istft(stft * mask, length=result.shape[1])
-
-        return result
+        pass

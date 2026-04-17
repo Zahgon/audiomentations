@@ -64,13 +64,4 @@ class WeightedChoiceSampler:
         """
         Draw `size` indices according to the stored weight distribution.
         """
-        if size < 1:
-            raise ValueError("size must be a positive int")
-
-        if self._uniform:
-            # O(1) per sample
-            return np.random.randint(self.num_items, size=size)
-        else:
-            # O(log n) per sample
-            random_vals = np.random.random(size)
-            return np.searchsorted(self.cdf, random_vals, side="right")
+        pass

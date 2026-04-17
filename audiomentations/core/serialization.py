@@ -33,15 +33,15 @@ class SerializableMeta(ABCMeta):
 
     @classmethod
     def is_serializable(cls) -> bool:
-        return False
+        pass
 
     @classmethod
     def get_class_fullname(cls) -> str:
-        return get_shortest_class_fullname(cls)
+        pass
 
     @classmethod
     def _to_dict(cls) -> dict[str, Any]:
-        return {}
+        pass
 
 
 class Serializable(metaclass=SerializableMeta):
@@ -71,22 +71,7 @@ class Serializable(metaclass=SerializableMeta):
             on_not_implemented_error (str): `raise` or `warn`.
 
         """
-        if on_not_implemented_error not in {"raise", "warn"}:
-            msg = f"Unknown on_not_implemented_error value: {on_not_implemented_error}. Supported values are: 'raise' "
-            "and 'warn'"
-            raise ValueError(msg)
-        try:
-            transform_dict = self.to_dict_private()
-        except NotImplementedError:
-            if on_not_implemented_error == "raise":
-                raise
-
-            transform_dict = {}
-            warnings.warn(
-                f"Got NotImplementedError while trying to serialize {self}. Object arguments are not preserved. ",
-                stacklevel=2,
-            )
-        return {"transform": transform_dict}
+        pass
 
 def get_shortest_class_fullname(cls: type[Any]) -> str:
     """The function `get_shortest_class_fullname` takes a class object as input and returns its shortened
